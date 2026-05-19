@@ -7,7 +7,6 @@
     <style>
         * { box-sizing: border-box; -webkit-user-select: none; user-select: none; }
         
-        /* 폰 화면 전체를 꽉 채우는 기본 설정 */
         body { 
             margin: 0; 
             padding: 0; 
@@ -17,27 +16,21 @@
             display: flex; 
             flex-direction: column; 
             height: 100vh; 
-            height: -webkit-fill-available;
             overflow: hidden; 
         }
         
-        /* 메인 화면 전체 구역 */
         #app-screen { 
-            flex: 1; 
-            display: flex; 
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center; 
-            position: relative; 
-            overflow: hidden; 
-            cursor: pointer; 
+            position: relative;
             width: 100%;
+            height: calc(100vh - 85px); /* 하단 바 높이를 뺀 나머지 전체를 메인 화면으로 강제 고정 */
+            background-color: #000;
+            cursor: pointer; 
         }
         
-        /* 텍스트 위치 고정 (화면 상단) */
+        /* 텍스트 컨테이너 정렬 강제 고정 */
         .text-container {
             position: absolute;
-            top: 60px; /* 상단에서부터의 거리 */
+            top: 10%;
             left: 0;
             width: 100%;
             text-align: center;
@@ -50,9 +43,7 @@
             font-size: 28px;
             font-weight: 500;
             margin: 0 0 12px 0;
-            letter-spacing: -0.5px;
             color: #ffffff;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.9);
         }
 
         .text-container p {
@@ -61,13 +52,12 @@
             margin: 0;
             color: #aaaaaa;
             line-height: 1.6;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.9);
         }
         
-        /* 은은한 빛 효과 (정중앙 고정) */
+        /* 빛 효과 무조건 화면 중앙 배치 */
         #glow { 
             position: absolute; 
-            top: 50%;
+            top: 55%;
             left: 50%;
             transform: translate(-50%, -50%);
             width: 350px; 
@@ -80,7 +70,7 @@
             z-index: 5; 
         }
         
-        /* 손 이미지 (화면 정중앙 고정) */
+        /* 손 이미지 무조건 화면 중앙 배치 */
         #hands { 
             position: absolute;
             top: 55%;
@@ -92,7 +82,6 @@
             pointer-events: none; 
         }
         
-        /* 하단 바 (최대 너비를 지정해서 PC/모바일 모두 예쁘게 나오도록 조정) */
         #interface { 
             height: 85px; 
             background-color: #000000; 
@@ -101,8 +90,8 @@
             z-index: 20; 
             padding-bottom: env(safe-area-inset-bottom);
             width: 100%;
-            max-width: 480px; /* 모바일 앱 핏 제한 */
-            margin: 0 auto;  /* 정중앙 정렬 */
+            max-width: 480px; 
+            margin: 0 auto;  
         }
         
         .tab { 
@@ -147,7 +136,7 @@
         </div>
 
         <div id="glow"></div>
-        <img id="hands" src="hands_separated.png" alt="Hands">
+        <img id="hands" src="./hands_separated.png" alt="Hands">
     </div>
 
     <div id="interface">
@@ -157,10 +146,10 @@
         <div class="tab" onclick="selectReligion('catholic', this)">Catholic</div>
     </div>
 
-    <audio id="audio-bg" src="bg_ambient.mp3" loop preload="auto"></audio>
-    <audio id="audio-buddhism" src="buddhism.mp3" loop preload="auto"></audio>
-    <audio id="audio-christian" src="christian.mp3" loop preload="auto"></audio>
-    <audio id="audio-catholic" src="catholic.mp3" loop preload="auto"></audio>
+    <audio id="audio-bg" src="./bg_ambient.mp3" loop preload="auto"></audio>
+    <audio id="audio-buddhism" src="./buddhism.mp3" loop preload="auto"></audio>
+    <audio id="audio-christian" src="./christian.mp3" loop preload="auto"></audio>
+    <audio id="audio-catholic" src="./catholic.mp3" loop preload="auto"></audio>
 
     <script>
         let currentReligion = 'none'; 
@@ -195,7 +184,8 @@
                 bgAudio.play().then(() => { isBgPlaying = true; }).catch(err => console.log(err));
             }
 
-            hands.src = 'hands_praying.png';
+            // 이미지 경로에 ./ 적용
+            hands.src = './hands_praying.png';
             glow.style.opacity = '1';
             
             if (currentReligion === 'none') {
@@ -208,7 +198,7 @@
         }
 
         function endInteraction(e) {
-            hands.src = 'hands_separated.png';
+            hands.src = './hands_separated.png';
             glow.style.opacity = '0';
             
             if (currentReligion === 'none') {
