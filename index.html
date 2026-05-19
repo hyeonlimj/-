@@ -189,9 +189,9 @@
             glow.style.opacity = '1';
             
             if (currentReligion === 'none') {
-                if (bgAudio) bgAudio.volume = 0.6;
+                if (bgAudio) bgAudio.volume = 1.0;
             } else {
-                if (bgAudio) bgAudio.volume = 0.1;
+                if (bgAudio) bgAudio.volume = 0.3;
                 const currentAudio = document.getElementById(`audio-${currentReligion}`);
                 if (currentAudio) currentAudio.play().catch(err => console.log(err));
             }
