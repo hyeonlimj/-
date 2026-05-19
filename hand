@@ -71,7 +71,7 @@
         function startInteraction(e) {
             e.preventDefault();
             glow.style.opacity = '1'; // 빛 보이기
-            // hands.src = 'hands_pray.png'; // 필요시 합창하는 손 이미지로 교체 가능
+            hands.src = 'hands_pray.png'; // 필요시 합창하는 손 이미지로 교체 가능
             
             // 선택된 종교 음악 재생
             const currentAudio = document.getElementById(`audio-${currentReligion}`);
@@ -81,7 +81,7 @@
         // 터치 종료
         function endInteraction(e) {
             glow.style.opacity = '0'; // 빛 숨기기
-            // hands.src = 'hands_default.png'; // 원래 손 이미지로 복귀
+            hands.src = 'hands_default.png'; // 원래 손 이미지로 복귀
             
             // 음악 일시정지 및 처음으로 되돌리기
             const currentAudio = document.getElementById(`audio-${currentReligion}`);
