@@ -6,16 +6,57 @@
     <title>Prayer Interaction App</title>
     <style>
         * { box-sizing: border-box; -webkit-user-select: none; user-select: none; }
-        body { margin: 0; padding: 0; background-color: #000; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        body { margin: 0; padding: 0; background-color: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
+        /* 메인 터치 영역 */
         #app-screen { flex: 1; display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden; cursor: pointer; }
+        
+        /* 은은한 빛 효과 */
         #glow { position: absolute; width: 350px; height: 350px; background: radial-gradient(circle, rgba(255,253,220,0.7) 0%, rgba(0,0,0,0) 75%); border-radius: 50%; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 5; }
+        
+        /* 손 이미지 */
         #hands { width: 220px; height: auto; z-index: 10; pointer-events: none; }
         
-        #interface { height: 90px; background-color: #111; display: flex; border-top: 1px solid #333; z-index: 20; padding-bottom: env(safe-area-inset-bottom); }
-        .tab { flex: 1; display: flex; justify-content: center; align-items: center; font-size: 14px; color: #888; border-right: 1px solid #222; cursor: pointer; transition: background 0.2s; }
-        .tab:last-child { border-right: none; }
-        .tab.active { color: #fff; background-color: #2a2a2a; font-weight: bold; }
+        /* ✨ 하단 인터페이스 (보내주신 사진 스타일로 변경) */
+        #interface { 
+            height: 75px; 
+            background-color: #000000; /* 완전 검은색 배경 */
+            display: flex; 
+            border-top: 1px solid #222; /* 아주 얇고 어두운 구분선 */
+            z-index: 20; 
+            padding-bottom: env(safe-area-inset-bottom); 
+        }
+        
+        /* 탭 각각의 스타일 */
+        .tab { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            font-size: 15px; 
+            color: #555555; /* 선택 안 됐을 때는 어두운 회색 */
+            cursor: pointer; 
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        
+        /* 선택된 탭 스타일 */
+        .tab.active { 
+            color: #ffffff; /* 선택되면 밝은 흰색 글자 */
+            font-weight: 600;
+        }
+
+        /* ✨ 선택된 종교 밑에 생기는 은은한 인디케이터 선 */
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 12px;
+            width: 24px;
+            height: 2px;
+            background-color: #fff;
+            border-radius: 1px;
+        }
     </style>
 </head>
 <body>
@@ -53,7 +94,6 @@
             element.classList.add('active');
         }
 
-        // 종교 음악들만 정지하는 함수
         function stopAllReligionAudio() {
             ['buddhism', 'christian', 'catholic'].forEach(id => {
                 const audio = document.getElementById(`audio-${id}`);
@@ -68,20 +108,16 @@
         function startInteraction(e) {
             e.preventDefault();
             
-            // 첫 터치 때 일반 배경음 재생 시작
             if (!isBgPlaying && bgAudio) {
                 bgAudio.play().then(() => { isBgPlaying = true; }).catch(err => console.log(err));
             }
 
-            // 비주얼 변경 (기도손 + 빛)
             hands.src = 'hands_praying.png';
             glow.style.opacity = '1';
             
             if (currentReligion === 'none') {
-                // 무교일 때는 배경음 볼륨을 키움 (0.6)
                 if (bgAudio) bgAudio.volume = 0.6;
             } else {
-                // 다른 종교일 때는 배경음을 줄이고 (0.1) 해당 음악 재생
                 if (bgAudio) bgAudio.volume = 0.1;
                 const currentAudio = document.getElementById(`audio-${currentReligion}`);
                 if (currentAudio) currentAudio.play().catch(err => console.log(err));
@@ -94,10 +130,8 @@
             glow.style.opacity = '0';
             
             if (currentReligion === 'none') {
-                // 무교 터치 종료 시 배경음 볼륨을 다시 평소 크기로 줄임 (0.2)
                 if (bgAudio && isBgPlaying) bgAudio.volume = 0.2;
             } else {
-                // 종교 터치 종료 시 종교 음악을 끄고 배경음 볼륨 원복 (0.2)
                 const currentAudio = document.getElementById(`audio-${currentReligion}`);
                 if (currentAudio) {
                     currentAudio.pause();
