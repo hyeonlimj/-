@@ -22,12 +22,12 @@
         #app-screen { 
             position: relative;
             width: 100%;
-            height: calc(100vh - 85px); /* 하단 바 높이를 뺀 나머지 전체를 메인 화면으로 강제 고정 */
+            height: calc(100vh - 85px); /* 하단 바 높이를 뺀 나머지 전체 화면 */
             background-color: #000;
             cursor: pointer; 
         }
         
-        /* 텍스트 컨테이너 정렬 강제 고정 */
+        /* 텍스트 컨테이너 */
         .text-container {
             position: absolute;
             top: 10%;
@@ -54,7 +54,7 @@
             line-height: 1.6;
         }
         
-        /* 빛 효과 무조건 화면 중앙 배치 */
+        /* 빛 효과 (기기 불문 화면 정중앙 고정) */
         #glow { 
             position: absolute; 
             top: 55%;
@@ -70,7 +70,7 @@
             z-index: 5; 
         }
         
-        /* 손 이미지 무조건 화면 중앙 배치 */
+        /* 손 이미지 (기기 불문 화면 정중앙 고정) */
         #hands { 
             position: absolute;
             top: 55%;
@@ -82,6 +82,7 @@
             pointer-events: none; 
         }
         
+        /* ✨ 하단 인터페이스 (가로 폭 제한을 없애고 100% 늘어나도록 수정) */
         #interface { 
             height: 85px; 
             background-color: #000000; 
@@ -89,9 +90,7 @@
             border-top: 1px solid #1a1a1a; 
             z-index: 20; 
             padding-bottom: env(safe-area-inset-bottom);
-            width: 100%;
-            max-width: 480px; 
-            margin: 0 auto;  
+            width: 100%; /* 기기 화면 너비에 따라 100% 늘어남 */
         }
         
         .tab { 
@@ -184,14 +183,14 @@
                 bgAudio.play().then(() => { isBgPlaying = true; }).catch(err => console.log(err));
             }
 
-            // 이미지 경로에 ./ 적용
             hands.src = './hands_praying.png';
             glow.style.opacity = '1';
             
             if (currentReligion === 'none') {
-                if (bgAudio) bgAudio.volume = 1.0;
+                // 이전 대화에서 수정한 Solace 소리 최대 강도 반영 (1.0)
+                if (bgAudio) bgAudio.volume = 1.0; 
             } else {
-                if (bgAudio) bgAudio.volume = 0.3;
+                if (bgAudio) bgAudio.volume = 0.3; 
                 const currentAudio = document.getElementById(`audio-${currentReligion}`);
                 if (currentAudio) currentAudio.play().catch(err => console.log(err));
             }
@@ -202,14 +201,14 @@
             glow.style.opacity = '0';
             
             if (currentReligion === 'none') {
-                if (bgAudio && isBgPlaying) bgAudio.volume = 0.2;
+                if (bgAudio && isBgPlaying) bgAudio.volume = 0.3;
             } else {
                 const currentAudio = document.getElementById(`audio-${currentReligion}`);
                 if (currentAudio) {
                     currentAudio.pause();
                     currentAudio.currentTime = 0; 
                 }
-                if (bgAudio && isBgPlaying) bgAudio.volume = 0.2;
+                if (bgAudio && isBgPlaying) bgAudio.volume = 0.3;
             }
         }
 
