@@ -8,96 +8,113 @@
         * { box-sizing: border-box; -webkit-user-select: none; user-select: none; }
         body { margin: 0; padding: 0; background-color: #000; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        /* 메인 터치 영역 */
-        #app-screen { flex: 1; display: flex; justify-content: center; align-items: center; relative; overflow: hidden; cursor: pointer; }
+        #app-screen { flex: 1; display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden; cursor: pointer; }
+        #glow { position: absolute; width: 350px; height: 350px; background: radial-gradient(circle, rgba(255,253,220,0.7) 0%, rgba(0,0,0,0) 75%); border-radius: 50%; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 5; }
+        #hands { width: 220px; height: auto; z-index: 10; pointer-events: none; }
         
-        /* 은은한 빛 효과 (기본 투명도 0) */
-        #glow { position: absolute; width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,253,230,0.6) 0%, rgba(0,0,0,0) 70%); border-radius: 50%; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
-        
-        /* 손 이미지 */
-        #hands { width: 200px; height: auto; z-index: 10; pointer-events: none; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
-        
-        /* 하단 인터페이스 (종교 선택) */
-        #interface { height: 80px; background-color: #111; display: flex; border-top: 1px solid #333; z-index: 20; }
-        .tab { flex: 1; display: flex; justify-content: center; align-items: center; font-size: 14px; color: #888; border-right: 1px solid #222; cursor: pointer; }
-        .tab: last-child { border-right: none; }
-        .tab.active { color: #fff; background-color: #222; font-weight: bold; }
+        #interface { height: 90px; background-color: #111; display: flex; border-top: 1px solid #333; z-index: 20; padding-bottom: env(safe-area-inset-bottom); }
+        .tab { flex: 1; display: flex; justify-content: center; align-items: center; font-size: 14px; color: #888; border-right: 1px solid #222; cursor: pointer; transition: background 0.2s; }
+        .tab:last-child { border-right: none; }
+        .tab.active { color: #fff; background-color: #2a2a2a; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="app-screen">
         <div id="glow"></div>
-        <img id="hands" src="hands_default.png" alt="Hands">
+        <img id="hands" src="hands_separated.png" alt="Hands">
     </div>
 
     <div id="interface">
-        <div class="tab active" onclick="selectReligion('buddhism', this)">불교</div>
+        <div class="tab active" onclick="selectReligion('none', this)">무교</div>
+        <div class="tab" onclick="selectReligion('buddhism', this)">불교</div>
         <div class="tab" onclick="selectReligion('christian', this)">기독교</div>
         <div class="tab" onclick="selectReligion('catholic', this)">천주교</div>
     </div>
 
-    <audio id="audio-buddhism" src="buddhism.mp3" loop></audio>
-    <audio id="audio-christian" src="christian.mp3" loop></audio>
-    <audio id="audio-catholic" src="catholic.mp3" loop></audio>
+    <audio id="audio-bg" src="bg_ambient.mp3" loop preload="auto"></audio>
+    <audio id="audio-buddhism" src="buddhism.mp3" loop preload="auto"></audio>
+    <audio id="audio-christian" src="christian.mp3" loop preload="auto"></audio>
+    <audio id="audio-catholic" src="catholic.mp3" loop preload="auto"></audio>
 
     <script>
-        let currentReligion = 'buddhism';
+        let currentReligion = 'none'; 
         const screen = document.getElementById('app-screen');
         const glow = document.getElementById('glow');
         const hands = document.getElementById('hands');
+        const bgAudio = document.getElementById('audio-bg');
 
-        // 종교 변경 함수
+        let isBgPlaying = false;
+
         function selectReligion(religion, element) {
-            // 모든 오디오 일단 정지
-            stopAllAudio();
+            stopAllReligionAudio();
             currentReligion = religion;
-            
-            // 탭 스타일 변경
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             element.classList.add('active');
         }
 
-        function stopAllAudio() {
-            document.getElementById('audio-buddhism').pause();
-            document.getElementById('audio-buddhism').currentTime = 0;
-            document.getElementById('audio-christian').pause();
-            document.getElementById('audio-christian').currentTime = 0;
-            document.getElementById('audio-catholic').pause();
-            document.getElementById('audio-catholic').currentTime = 0;
+        // 종교 음악들만 정지하는 함수
+        function stopAllReligionAudio() {
+            ['buddhism', 'christian', 'catholic'].forEach(id => {
+                const audio = document.getElementById(`audio-${id}`);
+                if (audio) {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }
+            });
         }
 
-        // 터치 시작 (정역학적 반응)
+        // --- 터치 시작 ---
         function startInteraction(e) {
             e.preventDefault();
-            glow.style.opacity = '1'; // 빛 보이기
-            hands.src = 'hands_pray.png'; // 필요시 합창하는 손 이미지로 교체 가능
             
-            // 선택된 종교 음악 재생
-            const currentAudio = document.getElementById(`audio-${currentReligion}`);
-            if (currentAudio) currentAudio.play().catch(err => console.log("유저 인터랙션 필요"));
-        }
+            // 첫 터치 때 일반 배경음 재생 시작
+            if (!isBgPlaying && bgAudio) {
+                bgAudio.play().then(() => { isBgPlaying = true; }).catch(err => console.log(err));
+            }
 
-        // 터치 종료
-        function endInteraction(e) {
-            glow.style.opacity = '0'; // 빛 숨기기
-            hands.src = 'hands_default.png'; // 원래 손 이미지로 복귀
+            // 비주얼 변경 (기도손 + 빛)
+            hands.src = 'hands_praying.png';
+            glow.style.opacity = '1';
             
-            // 음악 일시정지 및 처음으로 되돌리기
-            const currentAudio = document.getElementById(`audio-${currentReligion}`);
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0; 
+            if (currentReligion === 'none') {
+                // 무교일 때는 배경음 볼륨을 키움 (0.6)
+                if (bgAudio) bgAudio.volume = 0.6;
+            } else {
+                // 다른 종교일 때는 배경음을 줄이고 (0.1) 해당 음악 재생
+                if (bgAudio) bgAudio.volume = 0.1;
+                const currentAudio = document.getElementById(`audio-${currentReligion}`);
+                if (currentAudio) currentAudio.play().catch(err => console.log(err));
             }
         }
 
-        // 마우스 및 모바일 터치 이벤트 연결
+        // --- 터치 종료 ---
+        function endInteraction(e) {
+            hands.src = 'hands_separated.png';
+            glow.style.opacity = '0';
+            
+            if (currentReligion === 'none') {
+                // 무교 터치 종료 시 배경음 볼륨을 다시 평소 크기로 줄임 (0.2)
+                if (bgAudio && isBgPlaying) bgAudio.volume = 0.2;
+            } else {
+                // 종교 터치 종료 시 종교 음악을 끄고 배경음 볼륨 원복 (0.2)
+                const currentAudio = document.getElementById(`audio-${currentReligion}`);
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0; 
+                }
+                if (bgAudio && isBgPlaying) bgAudio.volume = 0.2;
+            }
+        }
+
+        // 이벤트 연결
         screen.addEventListener('mousedown', startInteraction);
         screen.addEventListener('mouseup', endInteraction);
         screen.addEventListener('mouseleave', endInteraction);
 
-        screen.addEventListener('touchstart', startInteraction);
+        screen.addEventListener('touchstart', startInteraction, { passive: false });
         screen.addEventListener('touchend', endInteraction);
+        screen.addEventListener('touchcancel', endInteraction);
     </script>
 </body>
 </html>
